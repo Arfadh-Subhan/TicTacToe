@@ -38,6 +38,7 @@ body {
     font-weight: 700;
     font-size: 1.2rem;
     color: #000000;
+    cursor: pointer;
 }
 
 .nav-logo i {
@@ -335,6 +336,8 @@ body {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0.2s, opacity 0.2s;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-overlay.active {
@@ -349,6 +352,15 @@ body {
     border-radius: 32px;
     overflow: hidden;
     animation: modalPop 0.25s ease-out;
+    margin: 20px auto;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-card::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
 }
 
 @keyframes modalPop {
@@ -362,6 +374,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .modal-header h3 {
@@ -384,6 +399,8 @@ body {
 
 .modal-body {
     padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Setup Modal */
@@ -517,6 +534,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .btn-start-game:hover {
@@ -546,7 +566,7 @@ body {
     border: 2px solid #E8E0C8;
     border-radius: 60px;
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
+    font-size: 16px;
     outline: none;
     transition: all 0.2s;
 }
@@ -766,6 +786,23 @@ body {
     background: #1A1A1A;
 }
 
+/* Toast */
+#gameToast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #000000;
+    color: #FFE87C;
+    padding: 0.6rem 1.2rem;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    z-index: 1100;
+    transition: transform 0.3s;
+    white-space: nowrap;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
     .cell {
@@ -795,6 +832,20 @@ body {
         padding: 0.6rem 1rem;
         font-size: 0.75rem;
     }
+    
+    .modal-card {
+        max-height: 85vh;
+        margin: 10px auto;
+    }
+    
+    .modal-body {
+        padding: 1.2rem;
+    }
+    
+    .setup-players {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -806,11 +857,6 @@ body {
     .board {
         gap: 8px;
         padding: 12px;
-    }
-    
-    .setup-players {
-        flex-direction: column;
-        gap: 0.8rem;
     }
 }
 
