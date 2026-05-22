@@ -17,6 +17,7 @@ let gameState = {
 };
 
 let currentEditingPlayer = null;
+let toastTimeout = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -285,11 +286,19 @@ function showSetupModal() {
         }
     });
     
-    document.getElementById('setupModal').classList.add('active');
+    const modal = document.getElementById('setupModal');
+    const modalCard = modal.querySelector('.modal-card');
+    if (modalCard) {
+        modalCard.scrollTop = 0;
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeSetupModal() { 
-    document.getElementById('setupModal').classList.remove('active'); 
+    document.getElementById('setupModal').classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function showNameEditor(player) {
@@ -412,9 +421,13 @@ function showToast(message) {
         `;
         document.body.appendChild(toast);
     }
+    
+    if (toastTimeout) clearTimeout(toastTimeout);
+    
     toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
     toast.style.transform = 'translateX(-50%) translateY(0)';
-    setTimeout(() => {
+    
+    toastTimeout = setTimeout(() => {
         toast.style.transform = 'translateX(-50%) translateY(100px)';
     }, 2000);
 }
