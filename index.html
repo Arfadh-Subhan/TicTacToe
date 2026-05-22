@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TIC TAC TOE · Classic Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Menu -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo" id="homeMenuBtn">
+        <i class="fas fa-times-circle"></i>
+        <span>TIC TAC TOE</span>
+    </div>
+            <div class="nav-menu" id="navMenu">
+                <button class="nav-link" data-page="game">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Game</span>
+                </button>
+                <button class="nav-link" data-page="support">
+                    <i class="fas fa-heart"></i>
+                    <span>Support</span>
+                </button>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Game Page -->
+    <div id="gamePage" class="page active">
+        <div class="game-container">
+            <!-- Score Board -->
+            <div class="score-board">
+                <div class="player-score">
+                    <i class="fas fa-times"></i>
+                    <span id="playerXName">Player X</span>
+                    <div class="score-value" id="scoreX">0</div>
+                </div>
+                <div class="vs-divider">VS</div>
+                <div class="player-score">
+                    <i class="far fa-circle"></i>
+                    <span id="playerOName">Player O</span>
+                    <div class="score-value" id="scoreO">0</div>
+                </div>
+            </div>
+            <div class="match-info">
+                <span class="match-badge" id="matchCounter">Match 1 / 3</span>
+                <span class="match-badge" id="bestOfBadge">Best of 3</span>
+            </div>
+
+            <!-- Game Board -->
+            <div class="board-container">
+                <div class="board" id="board">
+                    <div class="cell" data-index="0"></div>
+                    <div class="cell" data-index="1"></div>
+                    <div class="cell" data-index="2"></div>
+                    <div class="cell" data-index="3"></div>
+                    <div class="cell" data-index="4"></div>
+                    <div class="cell" data-index="5"></div>
+                    <div class="cell" data-index="6"></div>
+                    <div class="cell" data-index="7"></div>
+                    <div class="cell" data-index="8"></div>
+                </div>
+            </div>
+
+            <!-- Turn Indicator -->
+            <div class="turn-indicator">
+                <i class="fas fa-hourglass-half"></i>
+                <span id="turnText">Player X's Turn ✘</span>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <button id="resetBtn" class="btn-control btn-reset">
+                    <i class="fas fa-undo-alt"></i> Reset
+                </button>
+                <button id="newMatchBtn" class="btn-control btn-new-match">
+                    <i class="fas fa-trophy"></i> New Match
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Page -->
+    <div id="supportPage" class="page">
+        <div class="container support-container">
+            <div class="support-header">
+                <i class="fas fa-heart"></i>
+                <h1>Support</h1>
+                <p>follow & share the fun</p>
+            </div>
+            <div class="social-links">
+                <a href="https://instagram.com/_arsu.x" target="_blank" class="social-card" id="instaLink">
+                    <div class="social-icon"><i class="fab fa-instagram"></i></div>
+                    <div class="social-info"><h3>Instagram</h3><span>@_arsu.x</span></div>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="https://tiktok.com/@my.ville" target="_blank" class="social-card" id="tiktokLink">
+                    <div class="social-icon"><i class="fab fa-tiktok"></i></div>
+                    <div class="social-info"><h3>TikTok</h3><span>@my.ville</span></div>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="https://github.com/Arfadh-Subhan" target="_blank" class="social-card" id="githubLink">
+                    <div class="social-icon"><i class="fab fa-github"></i></div>
+                    <div class="social-info"><h3>GitHub</h3><span>Arfadh-Subhan</span></div>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="support-footer">
+                <p>❤️ Love this game? Share it with friends!</p>
+                <div class="share-buttons">
+                    <button class="share-btn" id="shareTwitter"><i class="fab fa-twitter"></i></button>
+                    <button class="share-btn" id="shareWhatsapp"><i class="fab fa-whatsapp"></i></button>
+                    <button class="share-btn" id="shareTelegram"><i class="fab fa-telegram"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Modal -->
+    <div id="setupModal" class="modal-overlay">
+        <div class="modal-card setup-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Game Setup</h3>
+            </div>
+            <div class="modal-body">
+                <div class="setup-players">
+                    <div class="setup-player">
+                        <i class="fas fa-times"></i>
+                        <label>Player X Name</label>
+                        <div class="player-name-wrapper" data-player="X">
+                            <span id="displayNameX">Player X</span>
+                            <i class="fas fa-pencil-alt"></i>
+                        </div>
+                    </div>
+                    <div class="setup-player">
+                        <i class="far fa-circle"></i>
+                        <label>Player O Name</label>
+                        <div class="player-name-wrapper" data-player="O">
+                            <span id="displayNameO">Player O</span>
+                            <i class="fas fa-pencil-alt"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setup-option">
+                    <label><i class="fas fa-trophy"></i> Best of Matches</label>
+                    <div class="best-of-buttons">
+                        <button class="best-of-btn" data-best="3">3</button>
+                        <button class="best-of-btn" data-best="5">5</button>
+                        <button class="best-of-btn" data-best="7">7</button>
+                        <button class="best-of-btn" data-best="0">∞</button>
+                    </div>
+                </div>
+
+                <div class="setup-option">
+                    <label><i class="fas fa-flag-checkered"></i> Who starts first?</label>
+                    <div class="starter-buttons">
+                        <button class="starter-btn" data-starter="X">
+                            <i class="fas fa-times"></i> Player X
+                        </button>
+                        <button class="starter-btn" data-starter="O">
+                            <i class="far fa-circle"></i> Player O
+                        </button>
+                        <button class="starter-btn" data-starter="random">
+                            <i class="fas fa-random"></i> Random
+                        </button>
+                    </div>
+                </div>
+
+                <button id="startGameBtn" class="btn-start-game">
+                    <i class="fas fa-play"></i> Start Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Name Editor Modal -->
+    <div id="nameEditorModal" class="modal-overlay">
+        <div class="modal-card name-editor-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-pencil-alt"></i> Edit Player Name</h3>
+                <button class="modal-close" id="closeNameEditorBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="name-editor-input">
+                    <label id="nameEditorLabel">Player X Name</label>
+                    <input type="text" id="nameEditorInput" maxlength="20" placeholder="Enter name">
+                </div>
+                <div class="name-editor-actions">
+                    <button id="saveNameBtn" class="btn-save"><i class="fas fa-check"></i> Save</button>
+                    <button id="cancelNameBtn" class="btn-cancel"><i class="fas fa-times"></i> Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Winner Modal -->
+    <div id="winnerModal" class="modal-overlay">
+        <div class="winner-card">
+            <div class="winner-header" id="winnerHeader">
+                <i class="fas fa-trophy"></i>
+                <h2 id="winnerTitle">MATCH WINNER!</h2>
+            </div>
+            <div class="winner-body">
+                <p id="winnerMessage">Player X wins the match!</p>
+                <div class="final-score" id="finalScore"></div>
+            </div>
+            <div class="winner-actions">
+                <button id="playAgainMatchBtn" class="btn-winner">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
