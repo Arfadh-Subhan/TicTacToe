@@ -19,9 +19,13 @@
         <span>TIC TAC TOE</span>
     </div>
             <div class="nav-menu" id="navMenu">
-                <button class="nav-link" data-page="game">
+                <button class="nav-link active" data-page="game">
                     <i class="fas fa-gamepad"></i>
                     <span>Game</span>
+                </button>
+                <button class="nav-link" data-page="howto">
+                    <i class="fas fa-question-circle"></i>
+                    <span>How to Play</span>
                 </button>
                 <button class="nav-link" data-page="support">
                     <i class="fas fa-heart"></i>
@@ -85,6 +89,55 @@
                 <button id="newMatchBtn" class="btn-control btn-new-match">
                     <i class="fas fa-trophy"></i> New Match
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- How to Play Page -->
+    <div id="howtoPage" class="page">
+        <div class="container howto-container">
+            <div class="howto-header">
+                <i class="fas fa-question-circle"></i>
+                <h1>How to Play</h1>
+                <p>master the classic strategy duel</p>
+            </div>
+            <div class="howto-grid">
+                <div class="howto-card">
+                    <div class="howto-number">01</div>
+                    <i class="fas fa-users"></i>
+                    <h3>Gather Players</h3>
+                    <p>2 players take turns on one device. X goes first, then O.</p>
+                </div>
+                <div class="howto-card">
+                    <div class="howto-number">02</div>
+                    <i class="fas fa-cog"></i>
+                    <h3>Setup the Game</h3>
+                    <p>Enter player names, choose "Best of" matches (3, 5, 7, or unlimited), and select who starts.</p>
+                </div>
+                <div class="howto-card">
+                    <div class="howto-number">03</div>
+                    <i class="fas fa-border-all"></i>
+                    <h3>Take Turns</h3>
+                    <p>Click any empty cell to place your symbol (X or O). Watch the drawing animation!</p>
+                </div>
+                <div class="howto-card">
+                    <div class="howto-number">04</div>
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Win the Round</h3>
+                    <p>Get 3 in a row — horizontally, vertically, or diagonally. The winning line glows yellow!</p>
+                </div>
+                <div class="howto-card">
+                    <div class="howto-number">05</div>
+                    <i class="fas fa-trophy"></i>
+                    <h3>Win the Match</h3>
+                    <p>First player to win the set number of matches wins the game!</p>
+                </div>
+                <div class="howto-card">
+                    <div class="howto-number">06</div>
+                    <i class="fas fa-redo-alt"></i>
+                    <h3>Play Again</h3>
+                    <p>Click "New Match" to reset scores, or "Reset" to clear the current board.</p>
+                </div>
             </div>
         </div>
     </div>
