@@ -1,433 +1,987 @@
-// Tic Tac Toe - Complete Game Logic
+/* Tic Tac Toe Styles - Same Theme as IMPOSTER */
 
-// Game State
-let gameState = {
-    board: Array(9).fill(null),
-    currentPlayer: 'X',
-    gameActive: true,
-    xScore: 0,
-    oScore: 0,
-    currentMatch: 1,
-    bestOf: 3,
-    matchWinner: null,
-    playerXName: 'Player X',
-    playerOName: 'Player O',
-    starterPlayer: 'X',
-    winnerLine: null
-};
-
-let currentEditingPlayer = null;
-let toastTimeout = null;
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    initNavigation();
-    initGame();
-    loadSavedData();
-    showSetupModal();
-    initShareButtons();
-});
-
-function initNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    const pages = { game: document.getElementById('gamePage'), support: document.getElementById('supportPage') };
-    const navToggle = document.getElementById('navToggle');
-    const navMenu = document.getElementById('navMenu');
-
-    window.switchPage = (pageId) => {
-        Object.values(pages).forEach(p => p?.classList.remove('active'));
-        if (pages[pageId]) pages[pageId].classList.add('active');
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('data-page') === pageId) link.classList.add('active');
-        });
-        navMenu?.classList.remove('active');
-    };
-
-    navLinks.forEach(link => link.addEventListener('click', () => switchPage(link.getAttribute('data-page'))));
-    if (navToggle) navToggle.addEventListener('click', () => navMenu.classList.toggle('active'));
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-function initShareButtons() {
-    const shareUrl = encodeURIComponent(window.location.href);
-    const shareText = encodeURIComponent('Play Tic Tac Toe - Classic strategy game! ✘◯');
+body {
+    background: #FFFBE6;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    min-height: 100vh;
+    color: #000000;
+}
+
+/* ========= NAVIGATION BAR ========= */
+.navbar {
+    position: sticky;
+    top: 0;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E8E0C8;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #000000;
+    cursor: pointer;
+}
+
+.nav-logo i {
+    color: #FFE87C;
+    font-size: 1.4rem;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nav-link {
+    background: none;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #888888;
+    cursor: pointer;
+    border-radius: 40px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link:hover {
+    color: #000000;
+    background: #F5F0E0;
+}
+
+.nav-link.active {
+    color: #FFE87C;
+    background: #000000;
+}
+
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #000000;
+}
+
+/* ========= PAGES ========= */
+.page {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========= GAME CONTAINER ========= */
+.game-container {
+    max-width: 550px;
+    margin: 0 auto;
+    padding: 1.5rem 1.5rem 2rem;
+}
+
+/* Score Board */
+.score-board {
+    background: #FFFFFF;
+    border-radius: 28px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    border: 1px solid #E8E0C8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-score {
+    flex: 1;
+    text-align: center;
+}
+
+.player-score i {
+    font-size: 1.8rem;
+    margin-bottom: 0.2rem;
+    display: block;
+}
+
+.player-score i.fa-times {
+    color: #000000;
+}
+
+.player-score i.fa-circle {
+    color: #FFE87C;
+    font-size: 1.6rem;
+}
+
+.player-score span {
+    display: block;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #000000;
+}
+
+.vs-divider {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #CCCCAA;
+    padding: 0 0.5rem;
+}
+
+.match-info {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.match-badge {
+    background: #F5F0E0;
+    padding: 0.3rem 0.8rem;
+    border-radius: 40px;
+    font-size: 0.7rem;
+    color: #555;
+}
+
+/* Game Board */
+.board-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    background: #FFFFFF;
+    padding: 15px;
+    border-radius: 32px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    border: 1px solid #E8E0C8;
+}
+
+.cell {
+    width: 90px;
+    height: 90px;
+    background: #FFFBE6;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid #E8E0C8;
+}
+
+.cell:hover {
+    border-color: #FFE87C;
+    transform: scale(1.02);
+    background: #FFF8E0;
+}
+
+.cell.disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.cell svg {
+    width: 55px;
+    height: 55px;
+}
+
+/* X Animation */
+.cell svg .x-line1, .cell svg .x-line2 {
+    stroke: #000000;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    animation: drawX 0.3s ease forwards;
+}
+
+@keyframes drawX {
+    to { stroke-dashoffset: 0; }
+}
+
+/* O Animation */
+.cell svg circle {
+    fill: none;
+    stroke: #FFE87C;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 280;
+    stroke-dashoffset: 280;
+    transform-origin: center;
+    animation: drawO 0.35s ease forwards;
+}
+
+@keyframes drawO {
+    to { stroke-dashoffset: 0; }
+}
+
+/* Turn Indicator */
+.turn-indicator {
+    text-align: center;
+    padding: 0.8rem;
+    background: #000000;
+    border-radius: 60px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.turn-indicator i {
+    color: #FFE87C;
+    font-size: 1rem;
+}
+
+.turn-indicator span {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #FFE87C;
+}
+
+/* Game Controls */
+.game-controls {
+    display: flex;
+    gap: 0.8rem;
+    justify-content: center;
+}
+
+.btn-control {
+    padding: 0.7rem 1.3rem;
+    border-radius: 60px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.btn-control:active {
+    transform: scale(0.96);
+}
+
+.btn-reset {
+    background: #F5F0E0;
+    color: #000000;
+}
+
+.btn-reset:hover {
+    background: #EBE4D0;
+    transform: translateY(-2px);
+}
+
+.btn-new-match {
+    background: #000000;
+    color: #FFE87C;
+}
+
+.btn-new-match:hover {
+    background: #1A1A1A;
+    transform: translateY(-2px);
+}
+
+/* ========= MODAL STYLES ========= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.2s, opacity 0.2s;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-card {
+    background: #FFFFFF;
+    max-width: 450px;
+    width: 90%;
+    border-radius: 32px;
+    overflow: hidden;
+    animation: modalPop 0.25s ease-out;
+    margin: 20px auto;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-card::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+    background: #000000;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.modal-header h3 {
+    color: #FFE87C;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.modal-header h3 i {
+    margin-right: 0.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #FFE87C;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Setup Modal */
+.setup-players {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.setup-player {
+    flex: 1;
+    text-align: center;
+    background: #F9F5E8;
+    border-radius: 20px;
+    padding: 1rem;
+}
+
+.setup-player i {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.setup-player i.fa-times {
+    color: #000000;
+}
+
+.setup-player i.fa-circle {
+    color: #FFE87C;
+}
+
+.setup-player label {
+    font-size: 0.7rem;
+    color: #888888;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.player-name-wrapper {
+    background: #FFFFFF;
+    padding: 0.6rem 1rem;
+    border-radius: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #E8E0C8;
+}
+
+.player-name-wrapper:hover {
+    border-color: #FFE87C;
+    background: #FFFBE6;
+}
+
+.player-name-wrapper span {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.player-name-wrapper i {
+    font-size: 0.75rem;
+    color: #CCCCAA;
+    margin: 0;
+}
+
+.setup-option {
+    margin-bottom: 1.5rem;
+}
+
+.setup-option label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    font-size: 0.85rem;
+}
+
+.setup-option label i {
+    margin-right: 0.4rem;
+    color: #FFE87C;
+}
+
+.best-of-buttons, .starter-buttons {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.best-of-btn, .starter-btn {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 40px;
+    border: 1px solid #E8E0C8;
+    background: #FFFFFF;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.best-of-btn.active, .starter-btn.active {
+    background: #000000;
+    color: #FFE87C;
+    border-color: #000000;
+}
+
+.best-of-btn:hover, .starter-btn:hover {
+    transform: translateY(-2px);
+    border-color: #FFE87C;
+}
+
+.btn-start-game {
+    width: 100%;
+    padding: 0.9rem;
+    background: #000000;
+    color: #FFE87C;
+    border: none;
+    border-radius: 60px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+.btn-start-game:hover {
+    background: #1A1A1A;
+    transform: translateY(-2px);
+}
+
+/* Name Editor Modal */
+.name-editor-card {
+    max-width: 350px;
+}
+
+.name-editor-input {
+    margin-bottom: 1.5rem;
+}
+
+.name-editor-input label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.name-editor-input input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #E8E0C8;
+    border-radius: 60px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.name-editor-input input:focus {
+    border-color: #FFE87C;
+}
+
+.name-editor-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-save {
+    flex: 1;
+    padding: 0.8rem;
+    background: #000000;
+    color: #FFE87C;
+    border: none;
+    border-radius: 60px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    background: #1A1A1A;
+    transform: translateY(-2px);
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 0.8rem;
+    background: #F5F0E0;
+    color: #000000;
+    border: none;
+    border-radius: 60px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #EBE4D0;
+    transform: translateY(-2px);
+}
+
+/* Winner Modal */
+.winner-card {
+    background: #FFFFFF;
+    max-width: 380px;
+    width: 90%;
+    border-radius: 48px;
+    text-align: center;
+    overflow: hidden;
+    animation: modalPop 0.3s ease;
+}
+
+.winner-header {
+    background: linear-gradient(135deg, #006400 0%, #00AA00 100%);
+    padding: 1.5rem;
+    color: #FFFFFF;
+}
+
+.winner-header i {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.winner-header h2 {
+    font-size: 1.3rem;
+}
+
+.winner-body {
+    padding: 1.5rem;
+}
+
+.winner-body p {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.final-score {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888888;
+    background: #F5F0E0;
+    padding: 0.5rem;
+    border-radius: 40px;
+}
+
+.winner-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 0 1.5rem 1.5rem;
+}
+
+.btn-winner {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 60px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    background: #000000;
+    color: #FFE87C;
+}
+
+.btn-winner:hover {
+    background: #1A1A1A;
+    transform: translateY(-2px);
+}
+
+/* Winning line highlight */
+.cell.win-highlight {
+    background: #FFF0B5;
+    border-color: #FFE87C;
+    box-shadow: 0 0 0 2px #FFE87C;
+}
+
+/* Support Page */
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.support-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.support-header i {
+    font-size: 3rem;
+    color: #FFE87C;
+    background: #000000;
+    padding: 1rem;
+    border-radius: 60px;
+    margin-bottom: 1rem;
+}
+
+.social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.social-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #FFFFFF;
+    padding: 1rem 1.5rem;
+    border-radius: 60px;
+    text-decoration: none;
+    color: #000000;
+    border: 1px solid #E8E0C8;
+    transition: all 0.2s;
+}
+
+.social-card:hover {
+    transform: translateX(6px);
+    border-color: #FFE87C;
+}
+
+.social-icon {
+    width: 48px;
+    height: 48px;
+    background: #F5F0E0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-icon i {
+    font-size: 1.5rem;
+}
+
+.support-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #E8E0C8;
+    text-align: center;
+}
+
+.support-footer p {
+    margin-bottom: 1rem;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.share-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.share-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #000000;
+    border: none;
+    color: #FFE87C;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    background: #1A1A1A;
+}
+
+/* Toast */
+#gameToast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #000000;
+    color: #FFE87C;
+    padding: 0.6rem 1.2rem;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    z-index: 1100;
+    transition: transform 0.3s;
+    white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .cell {
+        width: 85px;
+        height: 85px;
+    }
     
-    document.getElementById('shareTwitter')?.addEventListener('click', () => window.open(`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`, '_blank'));
-    document.getElementById('shareWhatsapp')?.addEventListener('click', () => window.open(`https://wa.me/?text=${shareText}%20${shareUrl}`, '_blank'));
-    document.getElementById('shareTelegram')?.addEventListener('click', () => window.open(`https://t.me/share/url?url=${shareUrl}&text=${shareText}`, '_blank'));
-}
-
-function loadSavedData() {
-    const savedX = localStorage.getItem('ttt_playerX');
-    const savedO = localStorage.getItem('ttt_playerO');
-    if (savedX) gameState.playerXName = savedX;
-    if (savedO) gameState.playerOName = savedO;
-    updateDisplayNames();
-}
-
-function savePlayerNames() {
-    localStorage.setItem('ttt_playerX', gameState.playerXName);
-    localStorage.setItem('ttt_playerO', gameState.playerOName);
-}
-
-function updateDisplayNames() {
-    document.getElementById('playerXName').innerText = gameState.playerXName;
-    document.getElementById('playerOName').innerText = gameState.playerOName;
-    document.getElementById('displayNameX').innerText = gameState.playerXName;
-    document.getElementById('displayNameO').innerText = gameState.playerOName;
-    updateTurnText();
-}
-
-function updateTurnText() {
-    const turnText = document.getElementById('turnText');
-    const currentPlayerName = gameState.currentPlayer === 'X' ? gameState.playerXName : gameState.playerOName;
-    const symbol = gameState.currentPlayer === 'X' ? '✘' : '◯';
-    turnText.innerHTML = `${currentPlayerName}'s Turn ${symbol}`;
-}
-
-function updateScoresUI() {
-    document.getElementById('scoreX').innerText = gameState.xScore;
-    document.getElementById('scoreO').innerText = gameState.oScore;
-    const matchText = gameState.bestOf === 0 ? `Match ${gameState.currentMatch}` : `Match ${gameState.currentMatch} / ${gameState.bestOf}`;
-    document.getElementById('matchCounter').innerHTML = matchText;
-    document.getElementById('bestOfBadge').innerHTML = gameState.bestOf === 0 ? '∞ Unlimited' : `🏆 Best of ${gameState.bestOf}`;
-}
-
-function initGame() {
-    createBoard();
-    setupEventListeners();
-}
-
-function createBoard() {
-    const board = document.getElementById('board');
-    board.innerHTML = '';
-    for (let i = 0; i < 9; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        cell.dataset.index = i;
-        cell.addEventListener('click', () => handleCellClick(i));
-        board.appendChild(cell);
+    .cell svg {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .game-container {
+        padding: 1rem 1rem 2rem;
+    }
+    
+    .best-of-buttons, .starter-buttons {
+        gap: 0.5rem;
+    }
+    
+    .best-of-btn, .starter-btn {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .btn-control {
+        padding: 0.6rem 1rem;
+        font-size: 0.75rem;
+    }
+    
+    .modal-card {
+        max-height: 85vh;
+        margin: 10px auto;
+    }
+    
+    .modal-body {
+        padding: 1.2rem;
+    }
+    
+    .setup-players {
+        flex-direction: column;
+        gap: 0.8rem;
     }
 }
 
-function handleCellClick(index) {
-    if (!gameState.gameActive || gameState.board[index] !== null) return;
-    if (gameState.matchWinner) return;
-    placeMark(index);
-}
-
-function placeMark(index) {
-    gameState.board[index] = gameState.currentPlayer;
-    updateBoardUI();
-    
-    const winner = checkWinner();
-    if (winner) {
-        handleRoundEnd(winner);
-        return;
+@media (max-width: 480px) {
+    .cell {
+        width: 75px;
+        height: 75px;
     }
     
-    const isDraw = gameState.board.every(cell => cell !== null);
-    if (isDraw) {
-        handleDraw();
-        return;
-    }
-    
-    gameState.currentPlayer = gameState.currentPlayer === 'X' ? 'O' : 'X';
-    updateTurnText();
-}
-
-function updateBoardUI() {
-    const cells = document.querySelectorAll('.cell');
-    for (let i = 0; i < cells.length; i++) {
-        const mark = gameState.board[i];
-        if (mark && !cells[i].hasChildNodes()) {
-            const svg = mark === 'X' ? createXSVG() : createOSVG();
-            cells[i].appendChild(svg);
-        }
+    .board {
+        gap: 8px;
+        padding: 12px;
     }
 }
 
-function createXSVG() {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 100 100');
-    const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line1.setAttribute('x1', '20'); line1.setAttribute('y1', '20');
-    line1.setAttribute('x2', '80'); line1.setAttribute('y2', '80');
-    line1.classList.add('x-line1');
-    const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line2.setAttribute('x1', '80'); line2.setAttribute('y1', '20');
-    line2.setAttribute('x2', '20'); line2.setAttribute('y2', '80');
-    line2.classList.add('x-line2');
-    svg.appendChild(line1); svg.appendChild(line2);
-    return svg;
-}
-
-function createOSVG() {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 100 100');
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', '50'); circle.setAttribute('cy', '50');
-    circle.setAttribute('r', '35');
-    svg.appendChild(circle);
-    return svg;
-}
-
-function checkWinner() {
-    const winPatterns = [
-        [0,1,2], [3,4,5], [6,7,8],
-        [0,3,6], [1,4,7], [2,5,8],
-        [0,4,8], [2,4,6]
-    ];
-    for (let pattern of winPatterns) {
-        const [a,b,c] = pattern;
-        if (gameState.board[a] && gameState.board[a] === gameState.board[b] && gameState.board[a] === gameState.board[c]) {
-            gameState.winnerLine = pattern;
-            highlightWinningCells(pattern);
-            return gameState.board[a];
-        }
+@media (max-width: 768px) {
+    .nav-menu {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        width: 80%;
+        height: calc(100vh - 60px);
+        background: #FFFFFF;
+        flex-direction: column;
+        padding: 2rem;
+        gap: 1rem;
+        transition: left 0.3s ease;
+        z-index: 99;
     }
-    return null;
-}
-
-function highlightWinningCells(pattern) {
-    const cells = document.querySelectorAll('.cell');
-    pattern.forEach(idx => cells[idx].classList.add('win-highlight'));
-}
-
-function handleRoundEnd(winner) {
-    gameState.gameActive = false;
-    if (winner === 'X') gameState.xScore++;
-    else gameState.oScore++;
-    updateScoresUI();
     
-    const targetWins = gameState.bestOf === 0 ? Infinity : Math.ceil(gameState.bestOf / 2);
-    const matchWinner = gameState.xScore >= targetWins ? 'X' : (gameState.oScore >= targetWins ? 'O' : null);
+    .nav-menu.active {
+        left: 0;
+    }
     
-    if (matchWinner) {
-        gameState.matchWinner = matchWinner;
-        showMatchWinner(matchWinner);
-    } else {
-        setTimeout(() => resetBoardForNextRound(), 1500);
+    .nav-toggle {
+        display: block;
     }
 }
 
-function handleDraw() {
-    gameState.gameActive = false;
-    showToast("It's a Draw! 🤝");
-    setTimeout(() => resetBoardForNextRound(), 1500);
+/* ========= HOW TO PLAY PAGE ========= */
+.howto-container {
+    text-align: center;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
-function resetBoardForNextRound() {
-    gameState.board = Array(9).fill(null);
-    gameState.gameActive = true;
-    gameState.currentPlayer = gameState.starterPlayer === 'random' ? (Math.random() < 0.5 ? 'X' : 'O') : gameState.starterPlayer;
-    gameState.winnerLine = null;
-    gameState.currentMatch++;
-    updateScoresUI();
-    const cells = document.querySelectorAll('.cell');
-    cells.forEach(cell => { cell.innerHTML = ''; cell.classList.remove('win-highlight'); });
-    updateTurnText();
+.howto-header {
+    margin-bottom: 3rem;
 }
 
-function showMatchWinner(winner) {
-    const winnerName = winner === 'X' ? gameState.playerXName : gameState.playerOName;
-    const finalScore = `${gameState.playerXName}: ${gameState.xScore}  |  ${gameState.playerOName}: ${gameState.oScore}`;
-    document.getElementById('winnerTitle').innerHTML = `🏆 ${winnerName} WINS! 🏆`;
-    document.getElementById('winnerMessage').innerHTML = `${winnerName} wins the match!`;
-    document.getElementById('finalScore').innerHTML = finalScore;
-    const winnerHeader = document.getElementById('winnerHeader');
-    winnerHeader.style.background = winner === 'X' ? 'linear-gradient(135deg, #006400 0%, #00AA00 100%)' : 'linear-gradient(135deg, #4a0000 0%, #8B0000 100%)';
-    document.getElementById('winnerModal').classList.add('active');
+.howto-header i {
+    font-size: 3rem;
+    color: #FFE87C;
+    background: #000000;
+    padding: 1rem;
+    border-radius: 60px;
+    margin-bottom: 1rem;
 }
 
-function resetFullMatch() {
-    gameState.board = Array(9).fill(null);
-    gameState.gameActive = true;
-    gameState.xScore = 0;
-    gameState.oScore = 0;
-    gameState.currentMatch = 1;
-    gameState.matchWinner = null;
-    gameState.winnerLine = null;
-    gameState.currentPlayer = gameState.starterPlayer === 'random' ? (Math.random() < 0.5 ? 'X' : 'O') : gameState.starterPlayer;
-    updateScoresUI();
-    const cells = document.querySelectorAll('.cell');
-    cells.forEach(cell => { cell.innerHTML = ''; cell.classList.remove('win-highlight'); });
-    updateTurnText();
-    document.getElementById('winnerModal').classList.remove('active');
+.howto-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
 }
 
-function resetBoard() {
-    gameState.board = Array(9).fill(null);
-    gameState.gameActive = true;
-    gameState.winnerLine = null;
-    gameState.currentPlayer = gameState.starterPlayer === 'random' ? (Math.random() < 0.5 ? 'X' : 'O') : gameState.starterPlayer;
-    const cells = document.querySelectorAll('.cell');
-    cells.forEach(cell => { cell.innerHTML = ''; cell.classList.remove('win-highlight'); });
-    updateTurnText();
-    showToast("Board reset!");
+.howto-header p {
+    color: #888888;
 }
 
-function showSetupModal() {
-    // Reset best of buttons to current value
-    document.querySelectorAll('.best-of-btn').forEach(btn => {
-        if (parseInt(btn.dataset.best) === gameState.bestOf) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-    
-    // Reset starter buttons to current value
-    document.querySelectorAll('.starter-btn').forEach(btn => {
-        if (btn.dataset.starter === gameState.starterPlayer) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-    
-    const modal = document.getElementById('setupModal');
-    const modalCard = modal.querySelector('.modal-card');
-    if (modalCard) {
-        modalCard.scrollTop = 0;
+.howto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.howto-card {
+    background: #FFFFFF;
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border: 1px solid #F0E8D0;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.howto-card:hover {
+    transform: translateY(-5px);
+    border-color: #FFE087;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.howto-number {
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: #000000;
+    color: #FFE87C;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.8rem;
+    border-radius: 40px;
+}
+
+.howto-card i {
+    font-size: 2rem;
+    color: #FFE87C;
+    margin-bottom: 1rem;
+}
+
+.howto-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.howto-card p {
+    color: #666666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Responsive for How to Play */
+@media (max-width: 640px) {
+    .howto-container {
+        padding: 1.5rem;
     }
     
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeSetupModal() { 
-    document.getElementById('setupModal').classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-function showNameEditor(player) {
-    currentEditingPlayer = player;
-    const label = document.getElementById('nameEditorLabel');
-    const input = document.getElementById('nameEditorInput');
-    if (player === 'X') {
-        label.innerHTML = 'Player X Name';
-        input.value = gameState.playerXName;
-    } else {
-        label.innerHTML = 'Player O Name';
-        input.value = gameState.playerOName;
-    }
-    document.getElementById('nameEditorModal').classList.add('active');
-}
-
-function closeNameEditor() { 
-    document.getElementById('nameEditorModal').classList.remove('active'); 
-}
-
-function saveName() {
-    const input = document.getElementById('nameEditorInput');
-    const newName = input.value.trim();
-    if (!newName) return;
-    if (currentEditingPlayer === 'X') {
-        gameState.playerXName = newName;
-    } else {
-        gameState.playerOName = newName;
-    }
-    savePlayerNames();
-    updateDisplayNames();
-    closeNameEditor();
-}
-
-function setupEventListeners() {
-    // Reset button
-    document.getElementById('resetBtn').addEventListener('click', () => resetBoard());
-    
-    // New match button
-    document.getElementById('newMatchBtn').addEventListener('click', () => { 
-        if (confirm('Start a new match? Current progress will be lost.')) {
-            resetFullMatch();
-        } 
-    });
-    
-    // HOME MENU BUTTON - opens setup modal
-    document.getElementById('homeMenuBtn')?.addEventListener('click', () => {
-        showSetupModal();
-    });
-    
-    // Best of buttons
-    document.querySelectorAll('.best-of-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.best-of-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            gameState.bestOf = parseInt(btn.dataset.best);
-            updateScoresUI();
-        });
-    });
-    
-    // Starter buttons
-    document.querySelectorAll('.starter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.starter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            gameState.starterPlayer = btn.dataset.starter;
-        });
-    });
-    
-    // Start game button
-    document.getElementById('startGameBtn').addEventListener('click', () => { 
-        resetFullMatch(); 
-        closeSetupModal(); 
-    });
-    
-    // Player name wrappers
-    document.querySelectorAll('.player-name-wrapper').forEach(wrapper => {
-        wrapper.addEventListener('click', () => {
-            const player = wrapper.dataset.player;
-            showNameEditor(player);
-        });
-    });
-    
-    // Name editor buttons
-    document.getElementById('saveNameBtn').addEventListener('click', saveName);
-    document.getElementById('cancelNameBtn').addEventListener('click', closeNameEditor);
-    document.getElementById('closeNameEditorBtn').addEventListener('click', closeNameEditor);
-    
-    // Play again button
-    document.getElementById('playAgainMatchBtn').addEventListener('click', () => { 
-        resetFullMatch(); 
-        document.getElementById('winnerModal').classList.remove('active'); 
-    });
-    
-    // Social links
-    document.getElementById('instaLink')?.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        window.open('https://instagram.com/_arsu.x', '_blank'); 
-    });
-    document.getElementById('tiktokLink')?.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        window.open('https://tiktok.com/@my.ville', '_blank'); 
-    });
-    document.getElementById('githubLink')?.addEventListener('click', (e) => { 
-        e.preventDefault(); 
-        window.open('https://github.com/Arfadh-Subhan', '_blank'); 
-    });
-}
-
-function showToast(message) {
-    let toast = document.getElementById('gameToast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'gameToast';
-        toast.style.cssText = `
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #000000; color: #FFE87C; padding: 0.6rem 1.2rem;
-            border-radius: 40px; font-size: 0.8rem; font-weight: 500;
-            z-index: 1100; transition: transform 0.3s; white-space: nowrap;
-        `;
-        document.body.appendChild(toast);
+    .howto-header h1 {
+        font-size: 2rem;
     }
     
-    if (toastTimeout) clearTimeout(toastTimeout);
+    .howto-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
     
-    toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
-    toast.style.transform = 'translateX(-50%) translateY(0)';
-    
-    toastTimeout = setTimeout(() => {
-        toast.style.transform = 'translateX(-50%) translateY(100px)';
-    }, 2000);
+    .howto-card {
+        padding: 1.5rem;
+    }
 }
