@@ -1028,3 +1028,23 @@ body {
 
 *{ -webkit-touch-callout:none !important; -webkit-user-select:none !important; user-select:none !important; -webkit-tap-highlight-color:transparent !important; }
 input, textarea { -webkit-user-select:text !important; user-select:text !important; }
+
+
+/* ========= HAMBURGER ICON ANIMATION ========= */
+
+/* Make the icon spin smoothly */
+.nav-toggle i {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+}
+
+/* Rotate icon when menu is open */
+.nav-menu.active ~ .nav-toggle i {
+    transform: rotate(90deg);
+}
+
+/* Optional: Icon bounce on click */
+.nav-toggle:active i {
+    transform: scale(0.85);
+    transition: transform 0.1s;
+}
